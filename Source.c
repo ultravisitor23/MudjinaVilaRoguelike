@@ -1,4 +1,15 @@
 #define _CRT_SECURE_NO_WARNINGS
+
+#define ANSI_BLACK "\x1b[30m"
+#define ANSI_RED "\x1b[31m"
+#define ANSI_GREEN "\x1b[32m"
+#define ANSI_YELLOW "\x1b[33m"
+#define ANSI_BLUE "\x1b[34m"
+#define ANSI_MAGENTA "\x1b[35m"
+#define ANSI_CYAN "\x1b[36m"
+#define ANSI_WHITE "\x1b[37m"
+#define ANSI_RESETSTYLE "\x1b[m"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -69,7 +80,7 @@ void generateStory(int setting_index, int character_index, int goal_index, int t
 	return 0;
 }
 
-void printfile(char filename[], char missingtext[])
+void printfile(char filename[], char missingtext[], char color[])
 {
 	FILE* fptr;
 
@@ -83,6 +94,8 @@ void printfile(char filename[], char missingtext[])
 		return;
 	}
 
+	printf(color);
+
 	// Read contents from file
 	c = fgetc(fptr);
 	while (c != EOF)
@@ -91,7 +104,111 @@ void printfile(char filename[], char missingtext[])
 		c = fgetc(fptr);
 	}
 
+	printf(ANSI_RESETSTYLE);
+
 	fclose(fptr);
+}
+
+void computerGameSystem(char gamename[], char roomname[])
+{
+	char path[256];
+	strcpy(path, "MODCONTENT/VideoGames/");
+	strcat(path, gamename);
+	strcat(path, "/");
+	strcat(path, roomname);
+	strcat(path, "/text.txt");
+	printfile(path, "Invalid Input. Closing app.", ANSI_RESETSTYLE);
+
+	char str[256];
+	scanf("%s", str);
+
+	FILE* fptr;
+
+	char c;
+
+	char filename[256];
+	strcpy(filename, "MODCONTENT/VideoGames/");
+	strcat(filename, gamename);
+	strcat(filename, "/");
+	strcat(filename, roomname);
+	strcat(filename, "/choice+");
+	strcat(filename, str);
+	strcat(filename, ".txt");
+
+	// Open file
+	fptr = fopen(filename, "r");
+	if (fptr == NULL)
+	{
+		computerGameSystem(gamename, roomname);
+	}
+
+	// Read contents from file
+	fgets(str, 256, fptr);
+
+	if (strcmp(str, "%finish%") == 0)
+	{
+		return;
+	}
+
+	else
+	{
+		computerGameSystem(gamename, str);
+	}
+
+	fclose(fptr);
+}
+
+void dreamSeq(int depth)
+{
+	if (depth <= 0) { printf("Probudio si se.\n"); return; }
+
+	char t_imagePaint[5] = {' ', '.', '!', 'O', '#'};
+	char t_imagePixels[8][8];
+	int t_imageColors[8][8];
+
+	for (int x = 0; x < 8; x++)
+	{
+		for (int y = 0; y < 8; y++)
+		{
+			t_imagePixels[x][y] = t_imagePaint[rand() % 5];
+			t_imageColors[x][y] = rand() % 6;
+		}
+	}
+
+	for (int x = 0; x < 16; x++)
+	{
+		for (int y = 0; y < 16; y++)
+		{
+			int acx = x;
+			int acy = y;
+			if (x >= 8) acx = 15 - x;
+			if (y >= 8) acy = 15 - y;
+
+			switch (t_imageColors[acx][acy])
+			{
+			case 0: printf(ANSI_RED); break;
+			case 1: printf(ANSI_GREEN); break;
+			case 2: printf(ANSI_YELLOW); break;
+			case 3: printf(ANSI_BLUE); break;
+			case 4: printf(ANSI_MAGENTA); break;
+			case 5: printf(ANSI_CYAN); break;
+			default: break;
+			}
+
+			printf("%c", t_imagePixels[acx][acy]);
+		}
+
+		printf("\n");
+	}
+	
+	printf(ANSI_RESETSTYLE);
+	char* t_actions[] = { "prosao si kroz vrata", "pogledao si kroz prozor", "razgovarao si s njim", "pritisnuo si okidac", "pozdravio si se s njim", "iskocio si kroz prozor", 
+	"otvorio si vrata", "udario si ga", "pobegao si", "zagledao si se", "sastavio si to", "slomio si to", "skocio si", "udahnuo si", "pravio si se mrtav", "konzumirao si", 
+	"odmorio si se" };
+	printf("%s\n", t_actions[rand() % 17]);
+	getchar();
+	dreamSeq(depth - (rand() % 5 + 1));
+	return;
 }
 
 int main(void)
@@ -101,13 +218,15 @@ int main(void)
 	char* traderItemNames[] = { "", "Keradar", "Mudjompas", "Protivotrov", "Svitac", "Kugla za Bilijar", "Konzerva", "Armorpierce Gun", "Bozja Zastita"};
 
 	static int mudja, choice, hp = 10, gasPress[30000], bGasOn = 0, putokaz[30000], hrana[30000], smellLead[30000], lastBeenOn = 0, mudjinKer, mudjinKerAngerLevel = 0, ormani[30000],
-		items[30000], bKeradar = 0, inventory[1000], lichen[30000], lichenActivated[30000], lichenForest, grapes[13], turn, cat, kugleZaBilijar = 0, stoloviZaBilijar[30000],
-		cuvarkugla[30000], cuvarkuglaPoolProficency[30000], zeljkoMitrovic, bZeljkoMitrovicAlive = 1, bWanted = 0, bGodsProtection, godsProtectionMaxHP, library, 
-		bookshelf[2][5][4][25][8], booksRead[2][5][4][25], znanje, mirrors[30000], reklameZaBiblioteku[30000], traderLocation, traderInventory[1000], traderPrices[1000], 
-		warehouses[50], maps[30000], poolProficency = 50;
+		items[30000], bKeradar = 0, inventory[1000], lichen[30000], lichenActivated[30000], lichenForest, grapes[13], turn, cat, kugleZaBilijar = 0, beleKugle = 0,
+		stoloviZaBilijar[30000], cuvarkugla[30000], cuvarkuglaPoolProficency[30000], zeljkoMitrovic, bZeljkoMitrovicAlive = 1, bWanted = 0, bGodsProtection, godsProtectionMaxHP,
+		library, bookshelf[2][5][4][25][8], booksRead[2][5][4][25], znanje, mirrors[30000], reklameZaBiblioteku[30000], traderLocation, traderInventory[1000], traderPrices[1000],
+		warehouses[50], maps[30000], poolProficency = 25, maxHP = 0, beds[30000], nocniStolovi[30000], umor = 0, kompSoba, bComputerPassword = 0;
 
 	time_t t;
 	srand((unsigned)time(&t));
+
+	int gameVersion = 1;
 
 #pragma region Worldgen
 
@@ -117,6 +236,7 @@ int main(void)
 	lichenForest = rand() % 30000;
 	zeljkoMitrovic = rand() % 30000;
 	library = rand() % 29999;
+	kompSoba = rand() % 30000;
 
 #pragma region Nagazni aktivatori otrovnog gasa
 
@@ -310,12 +430,6 @@ int main(void)
 		{
 			printf(".");
 		}
-
-		if (cuvarkugla[randm])
-		{
-			printf("%d ", randm);
-			cuvarkuglaPoolProficency[randm] = rand() % 100 + 1;
-		}
 	}
 
 #pragma endregion
@@ -421,6 +535,36 @@ int main(void)
 	}
 #pragma endregion
 
+#pragma region Beds
+
+	//Worldgen:Beds
+
+	for (int i = 0; i < 30000; i++)
+	{
+		beds[i] = 0;
+	}
+
+	printf("\n\nNamestanje posteljine\n");
+
+	for (int i = 0; i < 1000; i++)
+	{
+		int randm = rand() % 30000;
+		beds[randm] = 1;
+
+		if (rand() % 2)
+		{
+			nocniStolovi[randm] = 1;
+		}
+
+		if (i % 10 == 9)
+		{
+			printf(".");
+		}
+
+		printf("%d ", randm);
+	}
+#pragma endregion
+
 #pragma endregion
 
 #pragma region Main Menu
@@ -435,7 +579,7 @@ int main(void)
 	printf("                  _/ |                                              __/ |                        \n");
 	printf("                 |__/                                              |___/                         \n\n");
 
-	printf("Mudjina Vila Roguelike v1.0\n\n\n");
+	printf("Mudjina Vila Roguelike v1.1\n\n\n");
 	printf("Mudja te je kidnapovao jer si govorio razne uvrede protiv roma.\n");
 	printf("Sada je tvoje vreme da PREZIVIS.\n");
 	printf("Ali PAZI! U kuci te jure i Mudja i njegov Otac.\n\n");
@@ -456,14 +600,20 @@ int main(void)
 		{
 			smellLead[lastBeenOn] = choice;
 			lastBeenOn = choice;
+			umor++;
 			turn++;
+
+			if (hp > maxHP)
+			{
+				maxHP = hp;
+			}
 
 			if (choice != mudja)
 			{
 				if (bGasOn)
 					hp--;
 
-				printf("\n----------------\n|%s|HP:%d|Kugle za bilijar:%d|Znanje:%d|Turn:%d|", name, hp, kugleZaBilijar, znanje, turn);
+				printf("\n----------------\n|%s|HP:%d|Umor:%d|Kugle za bilijar:%d; Bele:%d|Znanje:%d|Turn:%d|", name, hp, umor, kugleZaBilijar, beleKugle, znanje, turn);
 
 				if (bKeradar)
 				{
@@ -556,6 +706,8 @@ int main(void)
 					{
 						printf("\n<> U ovoj sobi Zeljko Mitrovic sedi u Mech robotu.");
 					}
+
+					printfile("RESOURCES/IMAGES/ZeljkoMitrovic.txt", "Slika RESOURCES/IMAGES/ZeljkoMitrovic.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_BLUE);
 				}
 				else if (abs(choice - zeljkoMitrovic) <= 5000)
 				{
@@ -771,6 +923,8 @@ int main(void)
 								hp = rand() % hp;
 							}
 						}
+
+						printfile("RESOURCES/IMAGES/Cuvarkugla.txt", "Slika RESOURCES/IMAGES/Cuvarkugla.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_RED);
 					}
 				}
 
@@ -781,7 +935,7 @@ int main(void)
 					strcpy(str, "MODCONTENT/Characters/");
 					strcat(str, name);
 					strcat(str, ".txt");
-					printfile(str, ".");
+					printfile(str, ".", ANSI_RESETSTYLE);
 				}
 
 				if (library == choice || library + 1 == choice)
@@ -821,6 +975,26 @@ int main(void)
 					items[choice] = 0;
 				}
 
+				if (beds[choice])
+				{
+					printf("\n<> Krevet: U ovoj sobi se nalazi lepo namesten krevet. Napisi -106 da ga koristis.");
+
+					if (nocniStolovi[choice])
+					{
+						printf("\n\tPored njega se nalazi nocni stocic.");
+					}
+				}
+
+				if (abs(kompSoba - choice) <= 5)
+				{
+					printf("\n** Soba sa kompom: U blizini mozes cuti nesto sto zvuci kao mlazni avion i jos glasnije psovanje.");
+				}
+				if (kompSoba == choice)
+				{
+					printf("\n<> Kompjuter: Zvuci mlaznog aviona ti paraju usi, mada si sada i shvatio da te zvuke proizvodi napinjajuci kompjuter.\nIz jednog dela sobe zazidanog rigipsom moze se cuti covek kako psuje o tome kako nema nikoga u gejmu.\nNapisi -107 da bi ga iskoristio.");
+				}
+
+				//Gods Protection je uvek poslednja kalkulacija
 				if (bGodsProtection)
 				{
 					hp = godsProtectionMaxHP;
@@ -836,15 +1010,22 @@ int main(void)
 		{
 			if (choice == -001)
 			{
+				printf("\nTEHNICKE KOMANDE:\n");
 				printf("-001\tLista komandi\n");
 				printf("-002\tChangelog\n");
 				printf("-003\tSave Game\n");
 				printf("-004\tLoad Game\n");
+
+				printf("\nKOMANDE ZA NEPOKRETNE OBJEKTE:\n");
 				printf("-101\tKoristi orman\n");
 				printf("-102\tKoristi grozdje\n");
 				printf("-103\tKoristi sto za bilijar\n");
 				printf("-104\tCitaj knjigu u biblioteci\n");
 				printf("-105\tTrampi se sa prodavcem\n");
+				printf("-106\tKoristi krevet\n");
+				printf("-107\tKoristi komp\n");
+				
+				printf("\nKOMANDE ZA PREDMETE:\n");
 				printf("-201\tKoristi Kompas za Mudju\n");
 				printf("-202\tKoristi svica\n");
 				printf("-203\tKoristi konzervu\n");
@@ -859,11 +1040,16 @@ int main(void)
 				printf("19/10/22: The Lichen Forest Update\n\tDodati itemi: Mudjompas, Keradar, Protivotrov, Svitac\n\tDodata vinova loza, sume vinove loze, grozdje, macka.\n\tIgrica sada broji poteze.\n\n");
 				printf("20/10/22 - 22/10/22: Civilisation Update\n\tDodate kugle za bilijar. Dodati stolovi za bilijar, cuvarkugle, Zeljko Mitrovic.\n\tDodati itemi: Kugla za bilijar, Konzerva, Armorpierce Gun, Bozija zastita.\n\tPromenjen redosled itema i namestaja (Funkcije za namestaj sada pocinju sa -1, a funkcije za iteme pocinju sa -2). Ovo je uradjeno zbog olaksavanja koriscenja i implementiranja buducih funkcija.\n\n");
 				printf("29/10/22 - 22/02/23: Lore Update Part I -- Quality of Life Update:\n\tDodata biblioteka i police u njoj. Dodato znanje.\n\tLikovi sada imaju ime. Dodata ogledala!\n\tDodate mape.\n\tDodat prodavac i magacini. Itemi su sada cesci.\n\tIgrica sada moze da se sejva i louda. Igrica se sada arhivira posle svake verzije.\n\tOvo je tek prvi deo updatea.\n\n");
-				printf("22/02/23: Cale Update:\n\tNiz cuvarkuglaAngerLevel uklonjen -- njegova funkcija je sada integrisana u niz cuvarkugla. Kada cuvarkugla dostigne angerLevel od 6 ili vise (default 1), oduzece health igracu jos jednom, u istom maniru kao i prvi put.\n\tPopravljen Gods Protection. UI sa prodavcem je sada na srpskom. Pocetno vreme grozdja se sada pravilno generise.\n\tDok se generise svet, njegov progres se prikazuje i azurira.\n\n");
+				printfile("RESOURCES/CHANGELOG/caleUpdate.txt", "Slika RESOURCES/CHANGELOG/caleUpdate.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_CYAN);
+				printf("\n\n22/02/23 - 12/10/23: Cale Update:\n\tDodat Cale. Dodata soba sa kompom. Dodati kreveti i nocni stolovi. Dodat bilijar.\n\tDodati portreti nekih zivih bica i objekata\n\tNiz cuvarkuglaAngerLevel uklonjen -- njegova funkcija je sada integrisana u niz cuvarkugla. Kada cuvarkugla dostigne angerLevel od 6 ili vise (default 1), oduzece health igracu jos jednom, u istom maniru kao i prvi put.\n\tPopravljen Gods Protection. UI sa prodavcem je sada na srpskom. Pocetno vreme grozdja se sada pravilno generise. Sejvovi iz starijih verzija se sada azuriraju. Verzija igrice na glavnom meniju ce se od sad povecavati svakog updatea (trenutno v1.1).\n\tDok se generise svet, njegov progres se prikazuje i azurira. Help meni sada izgleda lepse.\n\n");
+				/*printfile("RESOURCES/CHANGELOG/loreUpdate.txt", "Slika RESOURCES/CHANGELOG/loreUpdate.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_YELLOW);
+				printfile("RESOURCES/CHANGELOG/parityUpdate.txt", "Slika RESOURCES/CHANGELOG/parityUpdate.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_WHITE);*/
 			}
 
 			if (choice == -003)
 			{
+				saveData(&gameVersion, "SAVE/.SAVE_VERSION.mvrl_savdat", sizeof(gameVersion));
+
 				saveData(&name, "SAVE/name.mvrl_savdat", sizeof(name));
 				saveData(&mudja, "SAVE/mudja.mvrl_savdat", sizeof(mudja));
 				saveData(&choice, "SAVE/choice.mvrl_savdat", sizeof(choice));
@@ -887,8 +1073,10 @@ int main(void)
 				saveData(&turn, "SAVE/turn.mvrl_savdat", sizeof(turn));
 				saveData(&cat, "SAVE/cat.mvrl_savdat", sizeof(cat));
 				saveData(&kugleZaBilijar, "SAVE/kugleZaBilijar.mvrl_savdat", sizeof(kugleZaBilijar));
+				saveData(&beleKugle, "SAVE/beleKugle.mvrl_savdat", sizeof(beleKugle));
 				saveData(&stoloviZaBilijar, "SAVE/stoloviZaBilijar.mvrl_savdat", sizeof(stoloviZaBilijar));
 				saveData(&cuvarkugla, "SAVE/cuvarkugla.mvrl_savdat", sizeof(cuvarkugla));
+				saveData(&cuvarkuglaPoolProficency, "SAVE/cuvarkuglaPoolProficency.mvrl_savdat", sizeof(cuvarkuglaPoolProficency));
 				saveData(&zeljkoMitrovic, "SAVE/zeljkoMitrovic.mvrl_savdat", sizeof(zeljkoMitrovic));
 				saveData(&bZeljkoMitrovicAlive, "SAVE/bZeljkoMitrovicAlive.mvrl_savdat", sizeof(bZeljkoMitrovicAlive));
 				saveData(&bWanted, "SAVE/bWanted.mvrl_savdat", sizeof(bWanted));
@@ -905,6 +1093,13 @@ int main(void)
 				saveData(&traderPrices, "SAVE/traderPrices.mvrl_savdat", sizeof(traderPrices));
 				saveData(&warehouses, "SAVE/warehouses.mvrl_savdat", sizeof(warehouses));
 				saveData(&maps, "SAVE/maps.mvrl_savdat", sizeof(maps));
+				saveData(&poolProficency, "SAVE/poolProficency.mvrl_savdat", sizeof(poolProficency));
+				saveData(&maxHP, "SAVE/maxHP.mvrl_savdat", sizeof(maxHP));
+				saveData(&umor, "SAVE/umor.mvrl_savdat", sizeof(umor));
+				saveData(&beds, "SAVE/beds.mvrl_savdat", sizeof(beds));
+				saveData(&nocniStolovi, "SAVE/nocniStolovi.mvrl_savdat", sizeof(nocniStolovi));
+				saveData(&kompSoba, "SAVE/kompSoba.mvrl_savdat", sizeof(kompSoba));
+				saveData(&bComputerPassword, "SAVE/bComputerPassword.mvrl_savdat", sizeof(bComputerPassword));
 			}
 
 			if (choice == -004)
@@ -932,8 +1127,10 @@ int main(void)
 				loadData("SAVE/turn.mvrl_savdat", &turn, sizeof(turn));
 				loadData("SAVE/cat.mvrl_savdat", &cat, sizeof(cat));
 				loadData("SAVE/kugleZaBilijar.mvrl_savdat", &kugleZaBilijar, sizeof(kugleZaBilijar));
+				loadData("SAVE/beleKugle.mvrl_savdat", &beleKugle, sizeof(beleKugle));
 				loadData("SAVE/stoloviZaBilijar.mvrl_savdat", stoloviZaBilijar, sizeof(stoloviZaBilijar));
 				loadData("SAVE/cuvarkugla.mvrl_savdat", cuvarkugla, sizeof(cuvarkugla));
+				loadData("SAVE/cuvarkuglaPoolProficency.mvrl_savdat", cuvarkuglaPoolProficency, sizeof(cuvarkuglaPoolProficency));
 				loadData("SAVE/zeljkoMitrovic.mvrl_savdat", &zeljkoMitrovic, sizeof(zeljkoMitrovic));
 				loadData("SAVE/bZeljkoMitrovicAlive.mvrl_savdat", &bZeljkoMitrovicAlive, sizeof(bZeljkoMitrovicAlive));
 				loadData("SAVE/bWanted.mvrl_savdat", &bWanted, sizeof(bWanted));
@@ -950,6 +1147,65 @@ int main(void)
 				loadData("SAVE/traderPrices.mvrl_savdat", traderPrices, sizeof(traderPrices));
 				loadData("SAVE/warehouses.mvrl_savdat", warehouses, sizeof(warehouses));
 				loadData("SAVE/maps.mvrl_savdat", maps, sizeof(maps));
+				loadData("SAVE/poolProficency.mvrl_savdat", &poolProficency, sizeof(poolProficency));
+				loadData("SAVE/maxHP.mvrl_savdat", &maxHP, sizeof(maxHP));
+				loadData("SAVE/umor.mvrl_savdat", &umor, sizeof(umor));
+				loadData("SAVE/beds.mvrl_savdat", beds, sizeof(beds));
+				loadData("SAVE/nocniStolovi.mvrl_savdat", nocniStolovi, sizeof(nocniStolovi));
+				loadData("SAVE/kompSoba.mvrl_savdat", &kompSoba, sizeof(kompSoba));
+				loadData("SAVE/bComputerPassword.mvrl_savdat", &bComputerPassword, sizeof(bComputerPassword));
+
+				gameVersion = 0;
+				loadData("SAVE/.SAVE_VERSION.mvrl_savdat", &gameVersion, sizeof(gameVersion));
+				
+				if (gameVersion == 0)
+				{
+					static int tCuvarkuglaAngerLevel[30000];
+					loadData("SAVE/cuvarkuglaAngerLevel.mvrl_savdat", tCuvarkuglaAngerLevel, sizeof(tCuvarkuglaAngerLevel));
+
+					for (int i = 0; i < 30000; i++)
+					{
+						cuvarkugla[i] += tCuvarkuglaAngerLevel[i];
+					}
+
+					for (int i = 0; i < 30000; i++)
+					{
+						if (stoloviZaBilijar[i] && cuvarkugla[i])
+						{
+							cuvarkuglaPoolProficency[i] = rand() % 100 + 1;
+						}
+					}
+
+					poolProficency = 50;
+
+					for (int i = 0; i < 30000; i++)
+					{
+						beds[i] = 0;
+					}
+
+					for (int i = 0; i < 1000; i++)
+					{
+						int randm = rand() % 30000;
+						beds[randm] = 1;
+
+						if (rand() % 2)
+						{
+							nocniStolovi[randm] = 1;
+						}
+
+						if (i % 10 == 9)
+						{
+							printf(".");
+						}
+					}
+
+					maxHP = 10;
+					umor = turn;
+
+					kompSoba = rand() % 30000;
+
+					gameVersion = 1;
+				}
 			}
 
 			if (choice == -201 && inventory[1] > 0)
@@ -1075,10 +1331,11 @@ int main(void)
 				{
 					bWanted = 1;
 				}break;
-				case 3: if (cuvarkugla[lastBeenOn] && cuvarkuglaPoolProficency[lastBeenOn])
+				case 3: if (cuvarkugla[lastBeenOn] && !cuvarkuglaPoolProficency[lastBeenOn])
 				{
 					int yourBalls = 0, enemyBalls = 0, enemyProficency;
 
+					cuvarkuglaPoolProficency[lastBeenOn] = rand() % 100 + 1;
 					enemyProficency = cuvarkuglaPoolProficency[lastBeenOn];
 
 					printf("\nSve lopte su magicno otisle u rupe, a zatim bese automatski izbacene i postavljene. Protivnik ti je dao stap. Razbio je lopte.\n");
@@ -1098,8 +1355,8 @@ int main(void)
 							Sleep(150);
 							if (rand() % 100 < poolProficency)
 							{
-								printf("Na genijalan nacin!\n");
-								poolProficency += rand() % 3 + 1;
+								printf("Kakav Mitrobilijar!\n");
+								poolProficency += 1;
 								PlaySound("RESOURCES/SOUNDS/poolBallHitLevelUp.wav", NULL, SND_FILENAME | SND_ASYNC);
 								Sleep(500);
 							}
@@ -1118,8 +1375,8 @@ int main(void)
 							Sleep(150);
 							if (rand() % 100 < enemyProficency)
 							{
-								printf("Na genijalan nacin!\n");
-								enemyProficency += rand() % 3 + 1;
+								printf("Kakav Mitrobilijar!\n");
+								enemyProficency += 1;
 								PlaySound("RESOURCES/SOUNDS/poolBallHitLevelUp.wav", NULL, SND_FILENAME | SND_ASYNC);
 								Sleep(500);
 							}
@@ -1129,9 +1386,416 @@ int main(void)
 					cuvarkuglaPoolProficency[lastBeenOn] = 0;
 
 					printf("\n");
-					printfile("RESOURCES/IMAGES/PoolTable.txt", "Slika nije nadjena!");
+					printfile("RESOURCES/IMAGES/PoolTable.txt", "Slika RESOURCES/IMAGES/PoolTable.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_GREEN);
+					
+					int tHole, tEnemyHole, tbMitrobilijar = 0, tbEnemyMitrobilijar = 0, tEightBall = rand() % 6 + 1, tbPromasio = 0, tbEnemyPromasio = 0;
+
+					while (yourBalls < 8 && enemyBalls < 8)
+					{
+						if (yourBalls == 7)
+						{
+							if (!tbMitrobilijar)
+							{
+								tHole = rand() % 6 + 1;
+								printf("\nMoras ubaciti osmicu u rupu %d. Srecno care!\n", tHole);
+								tbMitrobilijar = 1;
+							}
+
+							printf("\nLopta se nalazi blizu rupe %d.\nDo koje rupe zelis da odgurnes loptu? (Napisi 7 za pomoc)", tEightBall);
+
+							int temp; 
+							scanf("%d", &temp);
+
+							if (temp >= 7)
+							{
+								printf("\nNajlakse je ubaciti u rupu blizu koje je kugla, takodje je veoma lako ubaciti loptu u naspramnu rupu.\nUbaciti je u rupu koja se nalazi u uglu pored je srednje tesko, a najteze je ubaciti kuglu u rupe 2 i 5.\n");
+							}
+
+							else
+							{
+								if (temp == tEightBall)
+								{
+									if (temp == tHole)
+									{
+										if (rand() % 100 < poolProficency)
+										{
+											yourBalls++;
+											printf("\nKAKAV MITROBILIJAR!!! BRAVO POBEDNICKI CARE KRALJU!");
+										}
+
+										else
+										{
+											printf("\nPromasaj");
+											tbPromasio = 2;
+										}
+									}
+
+									if (temp != tHole)
+									{
+										if (rand() % 100 < poolProficency)
+										{
+											printf("\nPromasaj");
+											tbPromasio = 1;
+										}
+
+										else
+										{
+											printf("\nBRAVO UBACIO SI U... pogresnu rupu... O ne... O ne ne ne!!!");
+											yourBalls = 0;
+										}
+									}
+								}
+
+								else if (temp == 7 - tEightBall && rand() % 100 < 90)
+								{
+									if (temp == tHole)
+									{
+										if (rand() % 100 < poolProficency)
+										{
+											yourBalls++;
+											printf("\nKAKAV MITROBILIJAR!!! BRAVO POBEDNICKI CARE KRALJU!");
+										}
+
+										else
+										{
+											printf("\nPromasaj");
+											tbPromasio = 2;
+										}
+									}
+
+									if (temp != tHole)
+									{
+										if (rand() % 100 < poolProficency)
+										{
+											printf("\nPromasaj");
+											tbPromasio = 1;
+										}
+
+										else
+										{
+											printf("\nBRAVO UBACIO SI U... pogresnu rupu... O ne... O ne ne ne!!!");
+											yourBalls = 0;
+										}
+									}
+								}
+
+								else if ((temp == 1 || temp == 3 || temp == 4 || temp == 6) && rand() % 100 < 75)
+								{
+									if (temp == tHole)
+									{
+										if (rand() % 100 < poolProficency)
+										{
+											yourBalls++;
+											printf("\nKAKAV MITROBILIJAR!!! BRAVO POBEDNICKI CARE KRALJU!");
+										}
+
+										else
+										{
+											printf("\nPromasaj");
+											tbPromasio = 2;
+										}
+									}
+
+									if (temp != tHole)
+									{
+										if (rand() % 100 < poolProficency)
+										{
+											printf("\nPromasaj");
+											tbPromasio = 1;
+										}
+
+										else
+										{
+											printf("\nBRAVO UBACIO SI U... pogresnu rupu... O ne... O ne ne ne!!!");
+											yourBalls = 0;
+										}
+									}
+								}
+
+								else if ((temp == 2 || temp == 5) && rand() % 100 < 50)
+								{
+									if (temp == tHole)
+									{
+										if (rand() % 100 < poolProficency)
+										{
+											yourBalls++;
+											printf("\nKAKAV MITROBILIJAR!!! BRAVO POBEDNICKI CARE KRALJU!");
+										}
+
+										else
+										{
+											printf("\nPromasaj");
+											tbPromasio = 2;
+										}
+									}
+
+									if (temp != tHole)
+									{
+										if (rand() % 100 < poolProficency)
+										{
+											printf("\nPromasaj");
+											tbPromasio = 1;
+										}
+
+										else
+										{
+											printf("\nBRAVO UBACIO SI U... pogresnu rupu... O ne... O ne ne ne!!!");
+											yourBalls = 0;
+										}
+									}
+								}
+
+								tEightBall = temp;
+
+								if (tbPromasio)
+								{
+									for (int i = 0; i < tbPromasio * tbPromasio; i++)
+									{
+										if (rand() % 100 > poolProficency)
+										{
+											tEightBall = rand() % 6 + 1;
+											printf("\nOde lopta do rupe %d.", tEightBall);
+
+											if (tEightBall != tHole && rand() % 100 > poolProficency)
+											{
+												printf("\nBRAVO UBACIO SI U... pogresnu rupu... O ne... O ne ne ne!!!");
+												yourBalls = 0;
+											}
+										}
+									}
+
+									tbPromasio = 0;
+								}
+							}
+						}
+
+						else
+						{
+							if (rand() % 100 < poolProficency)
+							{
+								printf("\nUbacio si loptu!\n");
+								yourBalls++;
+								PlaySound("RESOURCES/SOUNDS/poolBallHitHole.wav", NULL, SND_FILENAME | SND_ASYNC);
+								Sleep(150);
+								if (rand() % 100 < poolProficency)
+								{
+									printf("Kakav Mitrobilijar!\n");
+									poolProficency += 1;
+									PlaySound("RESOURCES/SOUNDS/poolBallHitLevelUp.wav", NULL, SND_FILENAME | SND_ASYNC);
+									Sleep(500);
+								}
+							}
+						}
+
+						if (enemyBalls == 7)
+						{
+							if (!tbEnemyMitrobilijar)
+							{
+								tEnemyHole = rand() % 6 + 1;
+								printf("\nMora majmun da ubaci u rupu %d.\n", tEnemyHole);
+								tbEnemyMitrobilijar = 1;
+							}
+
+							int temp;
+
+							if (tEightBall == tEnemyHole || tEightBall == 7 - tEnemyHole)
+							{
+								temp = tEightBall;
+							}
+							
+							else
+							{
+								temp = 7 - tEightBall;
+							}
+
+							if (temp >= 7)
+							{
+								printf("\nNajlakse je ubaciti u rupu blizu koje je kugla, takodje je veoma lako ubaciti loptu u naspramnu rupu.\nUbaciti je u rupu koja se nalazi u uglu pored je srednje tesko, a najteze je ubaciti kuglu u rupe 2 i 5.\n");
+							}
+
+							else
+							{
+								if (temp == tEightBall)
+								{
+									if (temp == tEnemyHole)
+									{
+										if (rand() % 100 < enemyProficency)
+										{
+											enemyBalls++;
+											printf("\nI... Protivnik je napravio Mitrobilijar... Izgubio si...");
+										}
+
+										else
+										{
+											printf("\nPromasio retard");
+											tbEnemyPromasio = 2;
+										}
+									}
+
+									if (temp != tEnemyHole)
+									{
+										if (rand() % 100 < enemyProficency)
+										{
+											printf("\nPromasio retard");
+											tbEnemyPromasio = 1;
+										}
+
+										else
+										{
+											printf("\nHahaha, majmun retard debil ubacio u pogresnu rupu, lol!");
+											enemyBalls = 0;
+										}
+									}
+								}
+
+								else if (temp == 7 - tEightBall && rand() % 100 < 90)
+								{
+									if (temp == tEnemyHole)
+									{
+										if (rand() % 100 < enemyProficency)
+										{
+											enemyBalls++;
+											printf("\nI... Protivnik je napravio Mitrobilijar... Izgubio si...");
+										}
+
+										else
+										{
+											printf("\nPromasio retard");
+											tbEnemyPromasio = 2;
+										}
+									}
+
+									if (temp != tEnemyHole)
+									{
+										if (rand() % 100 < enemyProficency)
+										{
+											printf("\nPromasio retard");
+											tbEnemyPromasio = 1;
+										}
+
+										else
+										{
+											printf("\nHahaha, majmun retard debil ubacio u pogresnu rupu, lol!");
+											enemyBalls = 0;
+										}
+									}
+								}
+
+								else if ((temp == 1 || temp == 3 || temp == 4 || temp == 6) && rand() % 100 < 75)
+								{
+									if (temp == tEnemyHole)
+									{
+										if (rand() % 100 < enemyProficency)
+										{
+											enemyBalls++;
+											printf("\nI... Protivnik je napravio Mitrobilijar... Izgubio si...");
+										}
+
+										else
+										{
+											printf("\nPromasio retard");
+											tbEnemyPromasio = 2;
+										}
+									}
+
+									if (temp != tEnemyHole)
+									{
+										if (rand() % 100 < enemyProficency)
+										{
+											printf("\nPromasio retard");
+											tbEnemyPromasio = 1;
+										}
+
+										else
+										{
+											printf("\nHahaha, majmun retard debil ubacio u pogresnu rupu, lol!");
+											enemyBalls = 0;
+										}
+									}
+								}
+
+								else if ((temp == 2 || temp == 5) && rand() % 100 < 50)
+								{
+									if (temp == tEnemyHole)
+									{
+										if (rand() % 100 < enemyProficency)
+										{
+											enemyBalls++;
+											printf("\nI... Protivnik je napravio Mitrobilijar... Izgubio si...");
+										}
+
+										else
+										{
+											printf("\nPromasio retard");
+											tbEnemyPromasio = 2;
+										}
+									}
+
+									if (temp != tEnemyHole)
+									{
+										if (rand() % 100 < enemyProficency)
+										{
+											printf("\nPromasio retard");
+											tbEnemyPromasio = 1;
+										}
+
+										else
+										{
+											printf("\nHahaha, majmun retard debil ubacio u pogresnu rupu, lol!");
+											enemyBalls = 0;
+										}
+									}
+								}
+
+								tEightBall = temp;
+
+								if (tbEnemyPromasio)
+								{
+									for (int i = 0; i < tbEnemyPromasio * tbEnemyPromasio; i++)
+									{
+										if (rand() % 100 > enemyProficency)
+										{
+											tEightBall = rand() % 6 + 1;
+											printf("\nOde lopta do rupe %d.", tEightBall);
+
+											if (tEightBall != tEnemyHole && rand() % 100 > enemyProficency)
+											{
+												printf("\nUbacio lik u pogresnu rupu...");
+												enemyBalls = 0;
+											}
+										}
+									}
+
+									tbEnemyPromasio = 0;
+								}
+							}
+						}
+
+						else
+						{
+							if (rand() % 100 < enemyProficency)
+							{
+								printf("\nUbacio protivnik loptu!\n");
+								enemyBalls++;
+								PlaySound("RESOURCES/SOUNDS/poolBallHitHole.wav", NULL, SND_FILENAME | SND_ASYNC);
+								Sleep(150);
+								if (rand() % 100 < enemyProficency)
+								{
+									printf("Kakav Mitrobilijar!\n");
+									enemyProficency += 1;
+									PlaySound("RESOURCES/SOUNDS/poolBallHitLevelUp.wav", NULL, SND_FILENAME | SND_ASYNC);
+									Sleep(500);
+								}
+							}
+						}
+					}
+
+					if (yourBalls >= 8)
+					{
+						beleKugle++;
+					}
 				}
-				else if (!cuvarkuglaPoolProficency[lastBeenOn])
+				else if (cuvarkuglaPoolProficency[lastBeenOn])
 				{
 					printf("\nVec si igrao bilijar ovde.");
 				}
@@ -1187,6 +1851,362 @@ int main(void)
 					printf("\nProdavac ti je saopstio da se taj predmet nalazi u magacinu broj %d.", tempPlaced);
 				}
 			}
+
+			if (choice == -106 && beds[lastBeenOn])
+			{
+				printf("\nFUNKCIJE KREVETA:\n\n1: Spavaj.");
+				printf("\n\n>");
+				scanf("%d", &choice);
+
+				switch (choice)
+				{
+				case 1: printf("\n"); getchar(); dreamSeq(maxHP - hp); if (maxHP - hp < umor) { umor -= maxHP - hp; hp = maxHP; }
+					  else { hp += umor; umor = 0; } break;
+				default: break;
+				}
+			}
+
+			if (choice == -107 && lastBeenOn == kompSoba)
+			{
+				if (!bComputerPassword)
+				{
+					int tYourCarPosition = 0, tYourCarHP = 100, tEnemyCarPosition = 0, tEnemyCarHP = 100, tGTARaceMap[32], tLandmines[32],
+						tYourGrenades = 0, tYourLandmines = 0, tEnemyGrenades = 0, tEnemyLandmines = 0;
+
+					for (int i = 0; i < 32; i++)
+					{
+						tGTARaceMap[i] = rand() % 5;
+						tLandmines[i] = 0;
+					}
+
+					while (tYourCarPosition < 32 && tEnemyCarPosition < 32)
+					{
+						//Tvoj potez
+
+						if (tGTARaceMap[tYourCarPosition] == 0)
+						{
+							printfile("RESOURCES/IMAGES/GTARace1.txt", "Slika RESOURCES/IMAGES/GTARace1.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_RESETSTYLE);
+						
+							if (rand() % 2)
+							{
+								printf("\nSkupio si granatu!\n");
+								tYourGrenades++;
+							}
+
+							else
+							{
+								printf("\nSkupio si nagaznu minu!\n");
+								tYourLandmines++;
+							}
+
+							tYourCarPosition += rand() % 4 + 1;
+
+							Sleep(100);
+						}
+
+						if (tGTARaceMap[tYourCarPosition] == 1)
+						{
+							printfile("RESOURCES/IMAGES/GTARace2.txt", "Slika RESOURCES/IMAGES/GTARace2.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_RESETSTYLE);
+
+							if (rand() % 2)
+							{
+								printf("\nZaobisao si prepreku!\n");
+								tYourCarPosition += rand() % 4 + 1;
+							}
+
+							else
+							{
+								printf("\nSkucao si se!\n");
+								tYourCarPosition ++;
+							}
+
+							Sleep(100);
+						}
+
+						if (tGTARaceMap[tYourCarPosition] == 2)
+						{
+							printfile("RESOURCES/IMAGES/GTARace3.txt", "Slika RESOURCES/IMAGES/GTARace3.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_RESETSTYLE);
+
+							if (rand() % 2)
+							{
+								printf("\nUradio si ceo krug oko petlje!\n");
+								tYourCarPosition += rand() % 4 + 1;
+							}
+
+							else
+							{
+								printf("\nPao si na krov sa vrha petlje!\n");
+								tYourCarPosition++;
+								tYourCarHP -= rand() % 5 + 11;
+							}
+
+							Sleep(100);
+						}
+
+						if (tGTARaceMap[tYourCarPosition] == 3)
+						{
+							printfile("RESOURCES/IMAGES/GTARace4.txt", "Slika RESOURCES/IMAGES/GTARace4.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_RESETSTYLE);
+
+							if (rand() % 2)
+							{
+								printf("\nPreskocio si rampom na donji nivo!\n");
+								tYourCarPosition += rand() % 4 + 1;
+							}
+
+							else
+							{
+								printf("\nPao si u provaliju...\n");
+								tYourCarHP = 0;
+							}
+
+							Sleep(100);
+						}
+
+						if (tGTARaceMap[tYourCarPosition] == 4)
+						{
+							printfile("RESOURCES/IMAGES/GTARace5.txt", "Slika RESOURCES/IMAGES/GTARace5.txt nije nadjena! Ova slika dolazi u paketu sa igricom, pokusajte da je reinstalirate!", ANSI_RESETSTYLE);
+
+							if (rand() % 2)
+							{
+								printf("\nOstro si skrenuo!\n");
+								tYourCarPosition += rand() % 4 + 1;
+							}
+
+							else
+							{
+								printf("\nSkuconga\n");
+								tYourCarPosition -= rand() % 4 + 1;
+							}
+							
+							Sleep(100);
+						}
+
+						if (tLandmines[tYourCarPosition])
+						{
+							printf("\nStao si na nagaznu minu! Eksplodirao ti je automobil!\n");
+							tYourCarHP = 0;
+							tLandmines[tYourCarPosition] = 0;
+
+							Sleep(100);
+						}
+
+						if (tYourCarHP <= 0)
+						{
+							printf("\nE... Cvrc...\n");
+							tYourCarHP = 100;
+							tYourCarPosition = floor(tYourCarPosition / 4.0) * 4;
+
+							Sleep(500);
+						}
+
+						if (tYourCarPosition < 0)
+						{
+							tYourCarPosition = 0;
+						}
+
+						printf("\nHP: %d|Position: %d|Granate: %d|Mine: %d|", tYourCarHP, tYourCarPosition, tYourGrenades, tYourLandmines);
+						if (tEnemyCarPosition - tYourCarPosition < -1)
+						{
+							printf("Cale je negde daleko iza tebe.\n");
+						}
+						if (tEnemyCarPosition - tYourCarPosition == -1)
+						{
+							printf("Cale je tik iza tebe.\n");
+						}
+						if (tEnemyCarPosition - tYourCarPosition == 0)
+						{
+							printf("Cale je odmah pored tebe.\n");
+						}
+						if (tEnemyCarPosition - tYourCarPosition == 1)
+						{
+							printf("Cale je tik ispred tebe.\n");
+						}
+						if (tEnemyCarPosition - tYourCarPosition > 1)
+						{
+							printf("Cale je daleko ispred tebe.\n");
+						}
+
+						printf("\nDa li ces: 0) Skipovati; 1) Baciti Granatu; 2) Postaviti Minu\n");
+						int tempval;
+						scanf("%d", &tempval);
+
+						if (tempval == 1 && tYourGrenades)
+						{
+							if (-1 <= tEnemyCarPosition - tYourCarPosition <= 1)
+							{
+								printf("\nBonba puce!\n");
+								tEnemyCarHP -= rand() % 25 + 1;
+							}
+							else
+							{
+								printf("\nPa de bacas bre kad nema nikog\n");
+							}
+
+							tYourGrenades--;
+						}
+						if (tempval == 2 && tYourLandmines)
+						{
+							tLandmines[tYourCarPosition] = 1;
+							tYourLandmines--;
+						}
+
+						//CaletovPotez
+
+						if (tGTARaceMap[tEnemyCarPosition] == 0)
+						{
+							if (rand() % 2)
+							{
+								printf("\nCale: \"E Cefane sad da vidis sta sam uzo ne bi verovo\"\n");
+								tEnemyGrenades++;
+							}
+
+							else
+							{
+								printf("\nCale: \"E Cefane sad da vidis sta sam uzo ne bi verovo\"\n");
+								tEnemyLandmines++;
+							}
+
+							tEnemyCarPosition += rand() % 4 + 1;
+
+							Sleep(100);
+						}
+
+						if (tGTARaceMap[tEnemyCarPosition] == 1)
+						{
+							if (rand() % 2)
+							{
+								tEnemyCarPosition += rand() % 4 + 1;
+							}
+
+							else
+							{
+								printf("\nCale: \"Te izem ti bre ovu prepreku i ko je izmisli bre i celo pokolenje ti izem da ti izem!\"\n");
+								tEnemyCarPosition++;
+							}
+
+							Sleep(100);
+						}
+
+						if (tGTARaceMap[tEnemyCarPosition] == 2)
+						{
+							if (rand() % 2)
+							{
+								printf("\nCale: \"Tri siksti master aj em tri siksti master\"\n");
+								tEnemyCarPosition += rand() % 4 + 1;
+							}
+
+							else
+							{
+								printf("\nCale: \"Sacu bre da iscepam ovaj sto pa cu da idem kupujem novi\"\n");
+								tEnemyCarPosition++;
+								tEnemyCarHP -= rand() % 5 + 11;
+							}
+
+							Sleep(100);
+						}
+
+						if (tGTARaceMap[tEnemyCarPosition] == 3)
+						{
+							if (rand() % 2)
+							{
+								tEnemyCarPosition += rand() % 4 + 1;
+							}
+
+							else
+							{
+								printf("\nCale: \"Da Bog da izginu svi ovi ljudi dole bre, j**** ti stazu\"\n");
+								tEnemyCarHP = 0;
+							}
+
+							Sleep(100);
+						}
+
+						if (tGTARaceMap[tEnemyCarPosition] == 4)
+						{
+							if (rand() % 2)
+							{
+								printf("\nCale: \"Kaki sam ja majstor e\"\n");
+								tEnemyCarPosition += rand() % 4 + 1;
+							}
+
+							else
+							{
+								printf("\nCale: \"Jel ima bre normalna neka mapa za ovu igricu bre\"\n");
+								tEnemyCarPosition -= rand() % 4 + 1;
+							}
+
+							Sleep(100);
+						}
+
+						if (tLandmines[tEnemyCarPosition])
+						{
+							printf("\nMogao si cuti kako Caletov auto leti u vazduh, a odmah zatim i zvukove lomljenja stola.\n");
+							tEnemyCarHP = 0;
+							tLandmines[tEnemyCarPosition] = 0;
+
+							Sleep(100);
+						}
+
+						if (tEnemyCarHP <= 0)
+						{
+							printf("\nCale: \"A BRE JEL MOGUCE BRE SINE CEFANE SACU DA TI IZEM SVE ZIVO I MRTVO\"\n");
+							Sleep(100);
+							printf("\nCale slama tastaturu glavom.\n");
+							Sleep(400);
+							tEnemyCarHP = 100;
+							tEnemyCarPosition = floor(tEnemyCarPosition / 4.0) * 4;
+						}
+
+						if (tEnemyCarPosition < 0)
+						{
+							tEnemyCarPosition = 0;
+						}
+						
+						if (-1 <= tYourCarPosition - tEnemyCarPosition <= 1)
+						{
+							tempval = 1;
+						}
+
+						if (tYourCarPosition - tEnemyCarPosition < -1)
+						{
+							tempval = 2;
+						}
+
+						if (tempval == 1 && tEnemyGrenades)
+						{
+							printf("\nAuto odleteo u vazduh.\n");
+							tYourCarHP -= rand() % 25 + 1;
+
+							tEnemyGrenades--;
+						}
+						if (tempval == 2 && tEnemyLandmines)
+						{
+							tLandmines[tEnemyCarPosition] = 1;
+							tEnemyLandmines--;
+						}
+					}
+
+					if (tYourCarPosition >= 32)
+					{
+						printf("\n===You Win===\nCale ti je dao sifru za komp.");
+						bComputerPassword = 1;
+					}
+
+					else
+					{
+						printf("\n===You Lose===\nVrati se ovde malo kasnije i probaj ponovo.");
+					}
+				}
+				else
+				{
+					char tString[256];
+
+					printf("\nUnesi ime programa: ");
+					scanf("%s", tString);
+
+					computerGameSystem(tString, "START");
+				}
+			}
 		}
 
 	} while (hp > 0 && choice != mudja);
@@ -1224,3 +2244,17 @@ int main(void)
 		printf("Mudja se nalazio na broju %d.", mudja);
 	}
 }
+
+/*
+UPDATE PLAN:
+Ker Update
+The Lichen Forest Update
+Civilisation Update
+Lore Update Part I
+Cale Update
+Lore Update Part IS (Parity Update)
+Room Update
+Lore Update Part II (Quarters Update)
+Combat Update
+Lore Update Part III (Final Update)
+*/

@@ -1,0 +1,19 @@
+|\          \xxxxxxxxx|
+|x|          |xxxxxxxx|
+|xx\          \xxxxxxx|
+|xx|          |xxxxxxx|
+|xxx\          \xxxxxx|
+|xxx|          |xxxxxx|
+|xxxx\          \xxxxx|
+|xxxx|          |xxxxx|
+|xxxxx\          \xxxx|
+|xxxxx|          |xxxx|
+|xxxxxx\          \xxx|
+|xxxxxx|          |xxx|
+|xx/o-o\\          \xx|
+|xx|___||          |xx|
+|xx|   |x\          \x|
+|xx\---/x|          |x|
+|xxxxxxxxx\          \|
+|xxxxxxxxx|          ||
+|xxxxxxxxxx\          \
