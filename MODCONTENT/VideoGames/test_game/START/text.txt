@@ -1,6 +1,0 @@
-Dobrodosli u igricu "Debil Dungeon"
-
-Vi ste u maloj kamenoj sobi. Stakleni krov iznad vase glave propusta par zraka mesecine, a ispred vas se nalaze vrata i
-lepo dekorisan kameni sto. Na njemu se nalazi cup.
-
-'uzmi_cup' ili 'otvori_vrata' ?
